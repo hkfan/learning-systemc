@@ -29,6 +29,8 @@ The repo is in here
 https://github.com/accellera-official/systemc
 
 Use CMAKE_INSTALL_PREFIX to specify the path to install
+cmake -DCMAKE_INSTALL_PREFIX=/your/custom/path ..
+cmake ../systemc-3.0.2 -DCMAKE_CXX_STANDARD=17 -DCMAKE_INSTALL_PREFIX=/Users/henryfan/SystemC
 
 You must tell the compiler where the SystemC headers (-I) and library files (-L) are located, and explicitly link the systemc library (-lsystemc).
 
@@ -92,7 +94,58 @@ sc_object - name and identity
 sc_module_name - helps construction work cleanly
 sc_simcontext - kernel object that eventually runs the simulation
 
+The Core Mental Model
+A SystemC executable has two lives. First, normal C++ constructs objects. Then the SystemC kernel elaborates those objects into a simulation hierarchy and runs registered processes.
 
+sc_start() hands control to the scheduler. From that point on, time, events, and process readiness decide what runs.
+
+Maps of the course
+C++ setup and the shape of a SystemC program
+Modules, hierarchy, constructors, and elaboration
+Processes, sensitivity, events, waits, and delta cycles
+Ports, interfaces, exports, channels, and binding
+Signals, resolved signals, clocks, and writer policies
+TLM-2.0 payloads, sockets, timing, and protocol phases
+Source-code reading: scheduler, signals, ports, exports, sockets, and process control
+Practical patterns for virtual platforms and deployable documentation
+
+# Build SystemC and Write a First Model
+Use Docs/LRMs/SystemC_LRM_1666-2023.pdf to check what the kernel promises during elaboration and simulation startup.
+
+Construction: C++ constructors allocate modules, channels, and local state.
+Elaboration: SystemC finalizes hierarchy, port bindings, process registration, and object names.
+Simulation: sc_start() lets the kernel run processes according to events and time.
+
+Keep the first model small. Build one clock, one signal, one module, and one print statement.
+I need to change it in order to fix the 
+multiple errors: tapi error: malformed file
+error: unknown architecture
+The issue is because my Xcode command line tool is out of sync with the MacOS
+```
+sudo xcode-select -switch /Library/Developer/CommandLineTools
+```
+
+Also, need to force the use of standard C++17.
+Need to add a fake signature for the dynamically link path used.
+```
+g++ -std=c++17 main.cpp -o hello_systemc  -I/Users/henryfan/SystemC/include -L/Users/henryfan/SystemC/lib -lsystemc -lm
+install_name_tool -add_rpath /Users/henryfan/SystemC/lib hello_systemc 
+```
+
+# Modules, Hierarchy, and Elaboration
+
+SC_MODULE is a convenience macro around a C++ class derived from sc_module.
+You can also write explicit C++ classes derived from sc_module, which is useful when templates or inheritance become more important than brevity.
+
+Producer producer{"producer"};  "Module name, instance name, instance name"
+
+Elaboration Is the Build Step Inside the Executable
+
+Construct child modules before binding them. This style keeps topology in the parent constructor, where readers expect to find it.
+
+The big idea: SystemC uses ordinary C++ construction, but overlays a hierarchy-tracking discipline on top of it.
+
+https://www.accellera.org/downloads/standards/systemc
 
 # Too Early to tell
 kernel behavior
@@ -102,6 +155,9 @@ Configuration, Control and Inspection (CGI)
 SystemC verification library
 UVM-SystemC
 ESL architect
+channel
+dont_initialize
+Why a module has 2 instance names
 
 
 
