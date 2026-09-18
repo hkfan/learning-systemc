@@ -145,9 +145,36 @@ Construct child modules before binding them. This style keeps topology in the pa
 
 The big idea: SystemC uses ordinary C++ construction, but overlays a hierarchy-tracking discipline on top of it.
 
+# Processs, Events, and Time
+ Modules provide structure. Channels provide communication. Processes provide activity.
+
+SC_METHOD: runs to completion and cannot call wait().
+SC_THREAD: can suspend with wait() and resume later.
+
+Use SC_METHOD for combinational behavior or small reactions to events: (has sensitive list)
+
+Use SC_THREAD when behavior has an internal timeline:
+
+An sc_event is not a queue of messages. It is a notification mechanism. 
+
+
+A delta cycle is a zero-time scheduling step. It lets the kernel settle chains of events without advancing simulation time.
+
+Signal writes use this idea: a process writes a new value, the channel schedules an update, and dependent processes wake in a later delta cycle (zero-time scheduling steps).
+
+Most SystemC timing surprises become ordinary once you separate time advancement from delta-cycle settling.
+
+sc_thread_process: Requires its own execution stack to support wait(). Under the hood, the Accellera kernel uses a coroutine library. On Linux/Windows, it typically uses QuickThreads (src/sysc/qt/) or POSIX fibers. When wait() is called,  he coroutine context is saved, and execution yields back to the SystemC scheduler. When an sc_event::notify() is called, the kernel pushes the event into sc_simcontext::m_event_list. At the end of the delta cycle, the scheduler wakes up all processes statically or dynamically sensitive to that event by moving them into the m_runnable list.
+
+# Datatypes and Bit-Accurate Modeling
+
+ can a normal C++ type answer this modeling question? If yes, use it. If the model needs hardware-shaped behavior, use SystemC datatypes.
+
+
 https://www.accellera.org/downloads/standards/systemc
 
 # Too Early to tell
+using namespace
 kernel behavior
 macro and type
 Smart Pointers - scv_smart_ptr
@@ -158,6 +185,5 @@ ESL architect
 channel
 dont_initialize
 Why a module has 2 instance names
-
-
+If nobody is waiting when an immediate event is notified, the event is missed.
 

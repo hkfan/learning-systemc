@@ -14,7 +14,7 @@ int sc_main(int argc, char* argv[]) {
     // Since we have no modules or threads, the simulation will immediately exit.
     sc_start();
 
-    std::cout << "Simulation Completed Successfully!" << std::endl;
+    std::cout << "Hello SystemC Simulation Completed Successfully!" << std::endl;
 
     // 3. Return 0 to indicate success to the operating system.
     return 0;
