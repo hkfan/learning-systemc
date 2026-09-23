@@ -168,7 +168,68 @@ sc_thread_process: Requires its own execution stack to support wait(). Under the
 
 # Datatypes and Bit-Accurate Modeling
 
- can a normal C++ type answer this modeling question? If yes, use it. If the model needs hardware-shaped behavior, use SystemC datatypes.
+can a normal C++ type answer this modeling question? If yes, use it. If the model needs hardware-shaped behavior, use SystemC datatypes.
+
+Example of SystemC Data Type
+sc_dt::sc_int<uint>
+sc_dt::sc_uint<uint>
+sc_dt::sc_biguint<uint>
+sc_dt::sc_bv<uint> - bit vector
+sc_dt::sc_lv<uint> - logic vector
+sc_df::sv_fixed<uint, uint>
+
+sc_logic
+sc_logic_value_t
+
+
+ Example of Native C++ Type
+ uint32_t
+ uint8_t
+ bool
+ enum class
+
+Use native C++ types for fast functional state.
+Use sc_uint and sc_int for exact small widths.
+Use bit vectors (sc_bv) for bit slicing and packed fields when arithmetic isn't the primary goal.
+Use logic vectors (sc_lv) when X or Z is meaningful for bus resolution 
+Use fixed-point types (sc_fixed) for quantization and DSP modeling.
+Use enums for readable control state.
+
+# Reset and Clock Processes
+Can be synchronous or asynchronous
+
+Example of 
+1. Method-Based Clocked Logic
+2. Thread-Based Clocked Logic with explicit reset routing
+
+```
+SC_METHOD(tick_method);
+sensitive << clk.pos();
+dont_initialize();
+```
+The method only runs at the pos edge of the clock. The method will read the reset and determinate if the counter is needed to set to 0
+
+```
+SC_THREAD(run_thread);
+sensitive << clk.pos();
+async_reset_signal_is(rst_async, true);
+```
+The method async_reset_signal_is is added to the thread and reset it asycnronourly with the clock
+async_reset_signal_is(rst, true)
+reset_signal_is(rst, true)
+If the signal goes active, the kernel throws a specific C++ exception inside the process to immediately unwind the stack and jump back to the beginning of the run method!
+If the reset restarts the process via async_reset_signal_is, local variables inside the while loop *will be destroyed*, and the process restarts from the top of the function where local_count = 0
+sc_unwind_exception is thrown when reset state is active. It is thrown by wait()
+
+
+# Port, Interface, Exports, and Channels 
+A port requires an interface.
+A channel implements an interface.
+An export exposes an interface from inside a module.
+
+Interface - An abstract Contract (virtual class, virtual method etc)
+
+
 
 
 https://www.accellera.org/downloads/standards/systemc
@@ -183,7 +244,8 @@ SystemC verification library
 UVM-SystemC
 ESL architect
 channel
-dont_initialize
+dont_initialize - matters because SystemC normally initializes method processes once before simulation time advances. For clocked logic, that time-zero call is often not desired. I think that is because the unknown can be preserved and it reflects the untrue simulation behaviour of a logic without reset.
+
 Why a module has 2 instance names
 If nobody is waiting when an immediate event is notified, the event is missed.
 
