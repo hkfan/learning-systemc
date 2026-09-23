@@ -224,10 +224,50 @@ sc_unwind_exception is thrown when reset state is active. It is thrown by wait()
 
 # Port, Interface, Exports, and Channels 
 A port requires an interface.
-A channel implements an interface.
 An export exposes an interface from inside a module.
 
 Interface - An abstract Contract (virtual class, virtual method etc)
+
+A channel implements an interface.
+```
+struct BusIf : sc_core::sc_interface 
+class SimpleMemory : public sc_core::sc_channel, public BusIf
+```
+
+```
+sc_core::sc_port<BusIf> bus{"bus"};
+sc_core::sc_export<BusIf> target{"target"};
+target.bind(mem) ; // mem is the instant of the SimpleMemory class 
+```
+Use a port to call a interface
+Port and Export use as a pair 
+sc_port is in the module which call the interface
+sc_export is the the module which provide the interface
+
+> The concept of binding, port, export and interface is still not very clear
+> It is better to find more example and dive deep into it.
+
+# Signals, CLocks, and Primitive Channels
+
+> The tricky part is timing. A write does not necessarily become visible immediately to all other processes. The signal requests an update from the kernel. During the update phase, the current value changes and value-change events are notified.
+
+Why delayed update exists
+
+1. Processes evaluate and request channel updates.
+2. Primitive channels update.
+3. Events from those updates wake dependent processes.
+4. More delta cycles run if necessary.
+
+> It is like a process update of one of the input of an AND gate.
+> The AND gate has a primitive input channel. The event wake the dependent process to change the logic
+
+sc_clock is a predefined channel that toggles over time:
+
+A common bug is accidentally driving the same signal from multiple processes.
+
+> Study Under the Hood
+
+# FIFO, Mutex etc
 
 
 
@@ -249,3 +289,4 @@ dont_initialize - matters because SystemC normally initializes method processes 
 Why a module has 2 instance names
 If nobody is waiting when an immediate event is notified, the event is missed.
 
+Under the Hood is usually the implementation part
