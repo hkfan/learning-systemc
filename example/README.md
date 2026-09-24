@@ -19,3 +19,8 @@ It is the test for defining a module and instaniate it.
 
 clocked_counter.cpp
 It is a clocked counter to test the module instanition and signal IO
+
+## Producer Consumer
+
+producer_consumer.cpp
+Modules to test module instantiation and connection.
