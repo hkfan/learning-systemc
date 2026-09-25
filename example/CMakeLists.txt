@@ -18,3 +18,6 @@ target_link_libraries(producer_consumer SystemC::systemc)
 
 add_executable(method_thread_event method_thread_event.cpp)
 target_link_libraries(method_thread_event SystemC::systemc)
+
+add_executable(vcd_trace vcd_trace.cpp)
+target_link_libraries(vcd_trace SystemC::systemc)

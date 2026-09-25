@@ -27,6 +27,11 @@ int sc_main(int, char*[]) {
     counter.clk(clk);
     counter.value(count);
 
+    sc_trace_file* tf = sc_create_vcd_trace_file("clocked_counter") ;
+    tf->set_time_unit(1, SC_PS); 
+    sc_trace(tf, clk, "clk");
+    sc_trace(tf, count, "clock");
     sc_start(50, SC_NS);
+    sc_close_vcd_trace_file(tf);
     return 0;
 }

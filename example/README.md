@@ -1,9 +1,20 @@
 # SystemC Project
 
+## Prerequsite
+1. SystemC Reference Implementation 
+- GitHub https://github.com/accellera-official/systemc
+- Download Page https://www.accellera.org/downloads/standards/systemc
+	
+2. GTKWave - https://github.com/gtkwave/gtkwave
+
+## Build module in the project
+
+```
 export CMAKE_PREFIX_PATH="/your/path/systemc:$CMAKE_PREFIX_PATH"
 mkdir build && cd build
 cmake ..
 cmake --build .
+```
 
 ## Hello SystemC
 
