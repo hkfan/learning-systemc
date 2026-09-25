@@ -24,3 +24,8 @@ It is a clocked counter to test the module instanition and signal IO
 
 producer_consumer.cpp
 Modules to test module instantiation and connection.
+
+## Method Thread Event
+
+method_thread_event.cpp
+Modules to demonstrate the different usage of SC_METHOD, SC_THREAD and sc_event

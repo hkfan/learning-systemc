@@ -15,3 +15,6 @@ target_link_libraries(clocked_counter SystemC::systemc)
 
 add_executable(producer_consumer producer_consumer.cpp)
 target_link_libraries(producer_consumer SystemC::systemc)
+
+add_executable(method_thread_event method_thread_event.cpp)
+target_link_libraries(method_thread_event SystemC::systemc)
