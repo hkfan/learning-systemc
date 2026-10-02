@@ -269,12 +269,55 @@ A common bug is accidentally driving the same signal from multiple processes.
 
 # FIFO, Mutex etc
 
+Connection
+- signal - low level connection 
+- FIFO - higher-level channels 
+- mutexes
+- semaphores 
+More about transactions and resources than individual wires.
 
+1. interfaces
+2. ports
+3. exports
+4. primitive channels
+5. hierarchical channels
+6. predefined channels
 
+sc_fifo<T> models queued communication:
+```
+sc_fifo_out<int> out{"out"}; //instantiate in a Produceer
+out.write(i);
 
-https://www.accellera.org/downloads/standards/systemc
+sc_fifo_in<int> in{"in"}; // instantiate in a Consumer
+int val = in.read();
+
+sc_fifo<int> fifo(4); // instantiate in top
+p.out(fifo); // instantiate in top to connect producer to fifo input
+c.in(fifo); // instantiate in top to connect consumer to fifo output
+```
+The blocking write() waits when the FIFO is full. The blocking read() waits when the FIFO is empty
+perfect for modeling pipelines, queues, and producer-consumer systems.
+
+sc_mutex and sc_semaphore model shared resources. Use them when the model question is about arbitration or resource ownership.
+```
+sc_port<sc_mutex_if> bus_lock{"bus_lock"}; // instantiate at module for example bus master
+bus_lock->lock();
+bus_lock->unlock();
+
+sc_mutex mutex("mutex"); // instantiate at top: m1 and m2 share the same mutex 
+Master m1("m1"), m2("m2");
+m1.bus_lock(mutex);
+m2.bus_lock(mutex);
+```
+
+Customer channel should care about the operation it needs, not the machinery behind it.
+
+If the connection is a wire, use a signal. If the connection is a transaction, use an interface or TLM socket. If the connection is a queue, use a FIFO. If the connection is a shared resource, use a mutex or semaphore. 
+
+# sc_export and Hierarchical Binding
 
 # Too Early to tell
+https://www.accellera.org/downloads/standards/systemc
 using namespace
 kernel behavior
 macro and type
