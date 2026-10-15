@@ -333,3 +333,5 @@ Why a module has 2 instance names
 If nobody is waiting when an immediate event is notified, the event is missed.
 
 Under the Hood is usually the implementation part
+
+Hierarchical Binding
